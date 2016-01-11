@@ -1,4 +1,24 @@
 [package]
 name = "time_wars"
-version = "0.1.0"
-authors = ["Til Blechschmidt <til@blechschmidt.de>"]
+version = "0.0.1"
+authors = ["Til Blechschmidt <til@blechschmidt.de>, Noah Peeters <noah.peeters99@gmail.com>"]
+
+description = "Action packed strategic game where you fight against your enemy while time hopping through magical portals of the future."
+keywords = ["time", "travel", "strategic", "game", "top-down"]
+
+homepage = "https://github.com/TheMegaTB/time-wars"
+repository = "https://github.com/TheMegaTB/time-wars"
+
+readme = "README.md"
+
+[lib]
+name = "server"
+path = "src/server/lib.rs"
+doc = false
+test = true
+bench = false
+doctest = false
+
+[[bin]]
+name = "client"
+path = "src/client/main.rs"
