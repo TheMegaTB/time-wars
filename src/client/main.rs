@@ -1,3 +1,8 @@
+#[test]
 fn main() {
-    println!("Hello, world!");
+    let x = "Hello, world!";
+
+    assert_eq!(x, "Hello, world!");
+
+    println!("{}", x);
 }
