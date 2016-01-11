@@ -1,4 +1,7 @@
+extern crate server;
+use server::*;
+
 fn main() {
-    let x = "Hello, world!";
+    let x = plus_one(5);
     println!("{}", x);
 }
