@@ -1,9 +1,16 @@
-#[test]
-#[should_panic]
-fn it_works() {
-    panic!("Hello World!");
+#![allow(dead_code)]
+pub struct Server {
+    world: Vec<u8>
 }
 
-pub fn plus_one(a: u8) -> u8 {
-    a + 1
+impl Server {
+    pub fn new() -> Server {
+        Server {
+            world: Vec::new()
+        }
+    }
+
+    pub fn start_game(&self) {
+        println!("A new game has been started!");
+    }
 }

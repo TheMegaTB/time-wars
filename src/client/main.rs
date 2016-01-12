@@ -1,7 +1,8 @@
-extern crate server;
-use server::*;
+mod networking;
+use networking::API;
+use networking::Server;
 
 fn main() {
-    let x = plus_one(5);
-    println!("{}", x);
+    let server = Server::new().difficulty(5).start_local();
+    server.start_game();
 }
