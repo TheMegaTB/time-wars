@@ -63,7 +63,7 @@ impl Server {
         self
     }
 
-    pub fn start_local(&self) -> LocalServer {
+    pub fn local(&self) -> LocalServer {
         LocalServer::new()
     }
 

@@ -3,6 +3,6 @@ use networking::API;
 use networking::Server;
 
 fn main() {
-    let server = Server::new().difficulty(5).start_local();
+    let server = Server::new().difficulty(5).local();
     server.start_game();
 }
