@@ -11,6 +11,11 @@ homepage = "https://github.com/TheMegaTB/time-wars"
 repository = "https://github.com/TheMegaTB/time-wars"
 
 
+[features]
+default = []
+f64-precision = []
+
+
 [lib]
 name = "server"
 path = "src/server/lib.rs"

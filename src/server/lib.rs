@@ -1,16 +1,43 @@
 #![allow(dead_code)]
+#[cfg(feature = "f64-precision")]
+type Coordinate = (f64, f64);
+#[cfg(not(feature = "f64-precision"))]
+type Coordinate = (f32, f32);
+type TimeIndex = u32;
+type ID = u16;
+
+enum Player {
+    Red,
+    Blue
+}
+
+struct Endpoint {
+    location: Coordinate,
+    creation: TimeIndex,
+    expiration: TimeIndex,
+    scale: f32
+}
+
+struct Portal {
+    player: Player,
+    origin: Endpoint,
+    dest: Endpoint,
+    compression_factor: (f32, f32) // (size, time) - compression level when traveling origin->dest
+}
+
 pub struct Server {
-    world: Vec<u8>
+    portals: Vec<Portal>
 }
 
 impl Server {
     pub fn new() -> Server {
+        if cfg!(feature = "f64-precision") { println!("Using double precision floating mode!") }
         Server {
-            world: Vec::new()
+            portals: Vec::new(),
         }
     }
 
-    pub fn start_game(&self) {
+    pub fn start_game(&mut self) {
         println!("A new game has been started!");
     }
 }

@@ -2,7 +2,7 @@
 extern crate server as s;
 
 pub trait API {
-    fn start_game(&self);
+    fn start_game(&mut self);
 }
 
 // ----------------------------------------- LOCAL SERVER ----------------------------------------
@@ -20,7 +20,7 @@ impl LocalServer {
 }
 
 impl API for LocalServer {
-    fn start_game(&self) {
+    fn start_game(&mut self) {
         self.server.start_game();
     }
 }
@@ -40,7 +40,7 @@ impl RemoteServer {
 }
 
 impl API for RemoteServer {
-    fn start_game(&self) {
+    fn start_game(&mut self) {
         self.server.start_game();
     }
 }
