@@ -11,6 +11,8 @@ enum Player {
     Blue
 }
 
+// ------------------------------------------ PORTAL -----------------------------------------
+
 struct Endpoint {
     location: Coordinate,
     creation: TimeIndex,
@@ -24,6 +26,24 @@ struct Portal {
     dest: Endpoint,
     compression_factor: (f32, f32) // (size, time) - compression level when traveling origin->dest
 }
+
+// -------------------------------------------- AI -------------------------------------------
+
+trait AI {
+    fn calculate(t: TimeIndex) -> Coordinate;
+}
+
+pub struct BasicAI {
+    difficulty: u8
+}
+
+impl AI for BasicAI {
+    fn calculate(t: TimeIndex) -> Coordinate {
+        (t as f32, (t as f32)/2.0)
+    }
+}
+
+// ------------------------------------------ SERVER -----------------------------------------
 
 pub struct Server {
     portals: Vec<Portal>
