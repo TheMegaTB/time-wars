@@ -74,13 +74,12 @@ impl Server {
     fn calculate(&mut self, target: TimeIndex) -> Keyframe { //TODO: Don't use .clone() all over the place and use pointers instead
         let closest = self.closest_keyframe(target);
         if closest.0 == target { return closest.1 };
-        println!("{}", closest.0);
 
         let mut current: TimeIndex = closest.0;
         let mut last = closest.1;
         while current != target {
             current = current + 1;
-            println!("Target: {} | Current: {}", target, current);
+            //println!("Target: {} | Current: {}", target, current);
             let mut ais = Vec::with_capacity(last.len());
             for x in last.iter() {
                 let id = x.0;
