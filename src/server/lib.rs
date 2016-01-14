@@ -87,15 +87,26 @@ impl Server {
                 let mut loc = x.1;
                 let o = x.2;
                 let ai = self.get_ai(id);
-                loc.0 = loc.0 + 1.0;
-                loc.1 = loc.0.powf(2.0);
-                if ai.ai_type == AIType::Builder {}
+
+                if ai.ai_type == AIType::Builder {
+                    loc.0 = loc.0 + 1.0;
+                    loc.1 = loc.0.powf(2.0);
+                }
+
                 ais.push((id, loc, o));
             }
             self.keyframes.insert(current, ais.clone());
             last = ais;
         }
         self.keyframes.get(&target).unwrap().clone()
+    }
+
+    fn print_keyframes(&self) {
+        for keyframe in self.keyframes.iter() {
+            for ai in keyframe.1.iter() {
+                println!("AI: {}, X: {}, Y: {}", ai.0, (ai.1).0, (ai.1).1);
+            }
+        }
     }
 
     pub fn start_game(&mut self) {
@@ -112,18 +123,10 @@ impl Server {
         self.keyframes.insert(0, vec![(0, (0.0, 0.0), 0.0)]);
 
         self.calculate(10);
-        for keyframe in self.keyframes.iter() {
-            for ai in keyframe.1.iter() {
-                println!("AI: {}, X: {}, Y: {}", ai.0, (ai.1).0, (ai.1).1);
-            }
-        }
+        self.print_keyframes();
         println!("-----------------------------");
         self.calculate(20);
-        for keyframe in self.keyframes.iter() {
-            for ai in keyframe.1.iter() {
-                println!("AI: {}, X: {}, Y: {}", ai.0, (ai.1).0, (ai.1).1);
-            }
-        }
+        self.print_keyframes();
         // -------------------------------------------------------------------------
     }
 }
