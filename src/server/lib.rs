@@ -145,8 +145,6 @@ impl Server {
 
     pub fn start_game(&mut self) {
         println!("A new game has been started!");
-        self.create_portal(0, (100, (1.0, 1.0)), 500, 1.0, (0, (2.0, 2.0)), 100, 4.0);
-        self.print_portal(0);
     }
 }
 
