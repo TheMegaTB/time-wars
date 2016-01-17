@@ -27,3 +27,17 @@ doctest = false
 [[bin]]
 name = "client"
 path = "src/client/main.rs"
+
+[dependencies]
+gfx = "*"
+gfx_device_gl = "*"
+
+piston_window = "*"
+piston = "*"
+pistoncore-sdl2_window = "*"
+camera_controllers = "*"
+
+vecmath = "*"
+rand = "*"
+time = "*"
+find_folder = "*"

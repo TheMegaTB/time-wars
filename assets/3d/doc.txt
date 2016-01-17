@@ -1,0 +1,6 @@
+<number of frames>
+<time of animation>
+m <r> <g> <b>
+v <x> <y> <z> <x> <y> <z> <x> <y> <z> ... # id = 0
+v <x> <y> <z> <x> <y> <z> <x> <y> <z> ... # id = 1
+f <point1> <point2> <point3>
