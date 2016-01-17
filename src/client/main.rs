@@ -110,10 +110,10 @@ fn main() {
             match key {
                 input::Button::Keyboard(k) => {
                     match k {
-                        input::Key::W => my_world.player.move_player(0, 2.0),
-                        input::Key::S => my_world.player.move_player(1, 2.0),
-                        input::Key::A => my_world.player.move_player(2, 2.0),
-                        input::Key::D => my_world.player.move_player(3, 2.0),
+                        input::Key::W => my_world.player.move_player(0, 1.3),
+                        input::Key::S => my_world.player.move_player(1, 1.3),
+                        input::Key::A => my_world.player.move_player(2, 1.3),
+                        input::Key::D => my_world.player.move_player(3, 1.3),
                         input::Key::Space => my_world.player.move_player(4, 5.0),
                         //input::Key::LShift => my_world.player.move_player(5, 1.0),
                         _ => {}

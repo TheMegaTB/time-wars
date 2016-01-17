@@ -284,10 +284,12 @@ impl World {
 
     pub fn example() -> World {
         let mut v = Vec::new();
-        for i in 0..10 {
-            for j in 0..10 {
-                v.push(StaticWorldObj::new([i as f32, j as f32], i as f32, 0, 3.0));
-            }
+        let pr = Range::new(-100.0, 100.0);
+        let mut rng = rand::thread_rng();
+        for i in 0..1000 {
+            //for j in 0..10 {
+                v.push(StaticWorldObj::new([pr.ind_sample(&mut rng), pr.ind_sample(&mut rng)], pr.ind_sample(&mut rng), 0, 2.0));
+            //}
         }
 
         World {
