@@ -12,7 +12,6 @@ type Player = usize;
 type ID = usize;
 
 
-
 // ------------------------------------------ PORTAL -----------------------------------------
 
 struct Endpoint {
@@ -33,8 +32,8 @@ struct Portal {
 
 #[derive(PartialEq)]
 enum AIType {
-    Knight,
-    Builder
+    Scout,
+    Knight
 }
 
 struct AI {
@@ -66,20 +65,19 @@ impl Server {
         &self.ais[id]
     }
 
-    fn closest_keyframe(&self, target: TimeIndex) -> (usize, Keyframe) {
+    fn get_closest_keyframe(&self, target: TimeIndex) -> (usize, Keyframe) {
         let x = self.keyframes.iter().rev().find(|&(key, _)| *key <= target).unwrap();
         (*x.0, x.1.clone())
     }
 
     fn calculate(&mut self, target: TimeIndex) -> Keyframe { //TODO: Don't use .clone() all over the place and use pointers instead
-        let closest = self.closest_keyframe(target);
+        let closest = self.get_closest_keyframe(target);
         if closest.0 == target { return closest.1 };
 
         let mut current: TimeIndex = closest.0;
         let mut last = closest.1;
         while current != target {
             current = current + 1;
-            //println!("Target: {} | Current: {}", target, current);
             let mut ais = Vec::with_capacity(last.len());
             for x in last.iter() {
                 let id = x.0;
@@ -87,7 +85,7 @@ impl Server {
                 let o = x.2;
                 let ai = self.get_ai(id);
 
-                if ai.ai_type == AIType::Builder {
+                if ai.ai_type == AIType::Scout {
                     loc.0 = loc.0 + 1.0;
                     loc.1 = loc.0.powf(2.0);
                 }
@@ -117,7 +115,7 @@ impl Server {
 fn calculate_keyframes() {
     let mut s = Server::new();
     let ai = AI {
-        ai_type: AIType::Builder,
+        ai_type: AIType::Scout,
         player: 0,
         start_location: (0.0, 0.0),
         start_orientation: 0.0
