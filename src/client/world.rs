@@ -99,7 +99,7 @@ struct FloorObj {
 }
 
 pub struct AnimationObj {
-    points: Vec<Vec<Vector3<TCoordinate>>>,
+    meshs: Vec<Mesh<Resources>>,
     materials: Vec<[TColor; 4]>,
     pub slice: Slice<Resources>,
     collision_radius: TCoordinate,
@@ -152,11 +152,34 @@ impl AnimationObj {
             }
         }
 
-        let mut points = Vec::new();
+        let mut meshs = Vec::new();
+
+        for i in 0..ANIMATION_FRAMES {
+            let dt = (i as TTime)/(ANIMATION_FRAMES as TTime);
+
+            let mut vertex_data = Vec::new();
+
+            for (i, p) in key_points.iter().enumerate() {
+                let mut q: Vec<Vector3<TCoordinate>> = p.clone();
+                let nx = 2.0 * p[0][0] - p[1][0];
+                let ny = 2.0 * p[0][1] - p[1][1];
+                let nz = 2.0 * p[0][2] - p[1][2];
+                q.push([nx, ny, nz]);
+                q.push(p[0]);
+
+                let x = calculate_bezier(dt, q.iter().map(|x| x[0]).collect());
+                let y = calculate_bezier(dt, q.iter().map(|x| x[1]).collect());
+                let z = calculate_bezier(dt, q.iter().map(|x| x[2]).collect());
+                vertex_data.push(Vertex::new(x, y, z, materials[i]));
+                // vertex_data.push(Vertex::new(p[0][0], p[0][1], p[0][2], self.materials[i]));
+            }
+
+            meshs.push(factory.create_mesh(&vertex_data))
+        }
 
         let slice = slice_vec[..].to_slice(factory, TriangleList);
         AnimationObj {
-            points: points,
+            meshs: meshs,
             materials: materials,
             slice: slice,
             collision_radius: lines[0].parse::<TCoordinate>().unwrap(),
@@ -167,24 +190,28 @@ impl AnimationObj {
     pub fn get_meshs(&self, t: TTime, animation_duration: TTime, factory: &mut Factory) -> Mesh<Resources> {
         let dt = (t % animation_duration) / animation_duration;
 
-        let mut vertex_data = Vec::new();
 
-        for (i, p) in self.points.iter().enumerate() {
-            let mut q = p.clone();
-            let nx = 2.0 * p[0][0] - p[1][0];
-            let ny = 2.0 * p[0][1] - p[1][1];
-            let nz = 2.0 * p[0][2] - p[1][2];
-            q.push([nx, ny, nz]);
-            q.push(p[0]);
-
-            let x = calculate_bezier(dt, q.iter().map(|x| x[0]).collect());
-            let y = calculate_bezier(dt, q.iter().map(|x| x[1]).collect());
-            let z = calculate_bezier(dt, q.iter().map(|x| x[2]).collect());
-            vertex_data.push(Vertex::new(x, y, z, self.materials[i]));
-            // vertex_data.push(Vertex::new(p[0][0], p[0][1], p[0][2], self.materials[i]));
-        }
-
-        factory.create_mesh(&vertex_data)
+        let index: usize = (dt*ANIMATION_FRAMES as f32) as usize;
+        self.meshs[index].clone()
+        //
+        // let mut vertex_data = Vec::new();
+        //
+        // for (i, p) in self.points.iter().enumerate() {
+        //     let mut q = p.clone();
+        //     let nx = 2.0 * p[0][0] - p[1][0];
+        //     let ny = 2.0 * p[0][1] - p[1][1];
+        //     let nz = 2.0 * p[0][2] - p[1][2];
+        //     q.push([nx, ny, nz]);
+        //     q.push(p[0]);
+        //
+        //     let x = calculate_bezier(dt, q.iter().map(|x| x[0]).collect());
+        //     let y = calculate_bezier(dt, q.iter().map(|x| x[1]).collect());
+        //     let z = calculate_bezier(dt, q.iter().map(|x| x[2]).collect());
+        //     vertex_data.push(Vertex::new(x, y, z, self.materials[i]));
+        //     // vertex_data.push(Vertex::new(p[0][0], p[0][1], p[0][2], self.materials[i]));
+        // }
+        //
+        // factory.create_mesh(&vertex_data)
     }
 }
 
