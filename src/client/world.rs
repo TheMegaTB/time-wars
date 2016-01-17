@@ -25,23 +25,6 @@ use vecmath::{
 };
 
 
-pub struct TimeDiff {
-    start: PreciseTime
-}
-
-impl TimeDiff {
-    pub fn start() -> TimeDiff {
-        TimeDiff {
-            start: PreciseTime::now()
-        }
-    }
-
-    pub fn end(&self) {
-        println!("{:?}", (self.start.to(PreciseTime::now()).num_nanoseconds().unwrap() as TTime)/1000000000.0);
-    }
-}
-
-
 pub struct StaticWorldObj {
     pub model: T4Matrix<TCoordinate>,
     pub animation_id: usize,
