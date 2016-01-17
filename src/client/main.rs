@@ -159,14 +159,14 @@ fn main() {
 
             let view = my_world.get_view_matrix();
 
-            for (mesh, slice, model) in my_world.update(factory).iter().cloned() {
+            for (mesh, slice, model) in my_world.update().iter().cloned() {
                 data.u_model_view_proj = model_view_projection(
                     model,
                     view,
                     projection
                 );
 
-                stream.draw(&(&mesh, slice, &program, &data, &state)).unwrap();
+                stream.draw(&(mesh, slice, &program, &data, &state)).unwrap();
             }
             //a.end();
 
