@@ -116,7 +116,7 @@ impl AnimationObj {
         let lines = filestr.split("\n").collect::<Vec<&str>>();
         let mut slice_vec: Vec<u32> = Vec::new();
 
-        let mut points = Vec::new();
+        let mut key_points = Vec::new();
         let mut materials = Vec::new();
 
         let mut current_material = [0.0, 0.0, 0.0, 1.0];
@@ -138,7 +138,7 @@ impl AnimationObj {
 
                 let point: Vec<Vector3<TCoordinate>> = x.zip(y).zip(z).map(|((x,y), z)| [x,y,z]).collect();
 
-                points.push(point);
+                key_points.push(point);
                 let colormulti = material_range.ind_sample(&mut rng);
                 materials.push([current_material[0] * colormulti, current_material[1] * colormulti, current_material[2] * colormulti, current_material[3]]);
             }
@@ -151,6 +151,8 @@ impl AnimationObj {
                 slice_vec.push(p3 as u32);
             }
         }
+
+        let mut points = Vec::new();
 
         let slice = slice_vec[..].to_slice(factory, TriangleList);
         AnimationObj {
@@ -324,8 +326,6 @@ impl World {
 
         // --------- update position ---------
         //let old_pos = self.player.position.clone();
-
-
 
         if self.player.moving[4] == 0.0 {
             self.player.y_speed = max(self.player.y_speed - 6.0 * dt, -8.0);
