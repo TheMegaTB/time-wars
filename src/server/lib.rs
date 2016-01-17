@@ -110,22 +110,29 @@ impl Server {
 
     pub fn start_game(&mut self) {
         println!("A new game has been started!");
+    }
+}
 
-        // ------------------------------- TEST CODE -------------------------------
-        let ai = AI {
-            ai_type: AIType::Builder,
-            player: 0,
-            start_location: (0.0, 0.0),
-            start_orientation: 0.0
-        };
-        self.ais.push(ai);
-        self.keyframes.insert(0, vec![(0, (0.0, 0.0), 0.0)]);
+#[test]
+fn calculate_keyframes() {
+    let mut s = Server::new();
+    let ai = AI {
+        ai_type: AIType::Builder,
+        player: 0,
+        start_location: (0.0, 0.0),
+        start_orientation: 0.0
+    };
+    s.ais.push(ai);
+    s.keyframes.insert(0, vec![(0, (0.0, 0.0), 0.0)]);
 
-        self.calculate(10);
-        self.print_keyframes();
-        println!("-----------------------------");
-        self.calculate(20);
-        self.print_keyframes();
-        // -------------------------------------------------------------------------
+    s.calculate(10);
+    {
+        let loc = s.keyframes.get(&(10 as usize)).unwrap()[0].1;
+        assert_eq!(loc, (10.0, 100.0));
+    }
+    s.calculate(20);
+    {
+        let loc = s.keyframes.get(&(20 as usize)).unwrap()[0].1;
+        assert_eq!(loc, (20.0, 400.0));
     }
 }
