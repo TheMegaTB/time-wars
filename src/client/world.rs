@@ -99,7 +99,7 @@ struct FloorObj {
 }
 
 pub struct AnimationObj {
-    points: Vec<Vec<Vector3<TCoordinate>>>,
+    meshs: Vec<Mesh<Resources>>,
     materials: Vec<[TColor; 4]>,
     pub slice: Slice<Resources>,
     collision_radius: TCoordinate,
@@ -116,7 +116,7 @@ impl AnimationObj {
         let lines = filestr.split("\n").collect::<Vec<&str>>();
         let mut slice_vec: Vec<u32> = Vec::new();
 
-        let mut points = Vec::new();
+        let mut key_points = Vec::new();
         let mut materials = Vec::new();
 
         let mut current_material = [0.0, 0.0, 0.0, 1.0];
@@ -138,7 +138,7 @@ impl AnimationObj {
 
                 let point: Vec<Vector3<TCoordinate>> = x.zip(y).zip(z).map(|((x,y), z)| [x,y,z]).collect();
 
-                points.push(point);
+                key_points.push(point);
                 let colormulti = material_range.ind_sample(&mut rng);
                 materials.push([current_material[0] * colormulti, current_material[1] * colormulti, current_material[2] * colormulti, current_material[3]]);
             }
@@ -152,9 +152,34 @@ impl AnimationObj {
             }
         }
 
+        let mut meshs = Vec::new();
+
+        for i in 0..ANIMATION_FRAMES {
+            let dt = (i as TTime)/(ANIMATION_FRAMES as TTime);
+
+            let mut vertex_data = Vec::new();
+
+            for (i, p) in key_points.iter().enumerate() {
+                let mut q: Vec<Vector3<TCoordinate>> = p.clone();
+                let nx = 2.0 * p[0][0] - p[1][0];
+                let ny = 2.0 * p[0][1] - p[1][1];
+                let nz = 2.0 * p[0][2] - p[1][2];
+                q.push([nx, ny, nz]);
+                q.push(p[0]);
+
+                let x = calculate_bezier(dt, q.iter().map(|x| x[0]).collect());
+                let y = calculate_bezier(dt, q.iter().map(|x| x[1]).collect());
+                let z = calculate_bezier(dt, q.iter().map(|x| x[2]).collect());
+                vertex_data.push(Vertex::new(x, y, z, materials[i]));
+                // vertex_data.push(Vertex::new(p[0][0], p[0][1], p[0][2], self.materials[i]));
+            }
+
+            meshs.push(factory.create_mesh(&vertex_data))
+        }
+
         let slice = slice_vec[..].to_slice(factory, TriangleList);
         AnimationObj {
-            points: points,
+            meshs: meshs,
             materials: materials,
             slice: slice,
             collision_radius: lines[0].parse::<TCoordinate>().unwrap(),
@@ -162,27 +187,12 @@ impl AnimationObj {
         }
     }
 
-    pub fn get_meshs(&self, t: TTime, animation_duration: TTime, factory: &mut Factory) -> Mesh<Resources> {
+    pub fn get_meshs(&self, t: TTime, animation_duration: TTime) -> &Mesh<Resources> {
         let dt = (t % animation_duration) / animation_duration;
 
-        let mut vertex_data = Vec::new();
 
-        for (i, p) in self.points.iter().enumerate() {
-            let mut q = p.clone();
-            let nx = 2.0 * p[0][0] - p[1][0];
-            let ny = 2.0 * p[0][1] - p[1][1];
-            let nz = 2.0 * p[0][2] - p[1][2];
-            q.push([nx, ny, nz]);
-            q.push(p[0]);
-
-            let x = calculate_bezier(dt, q.iter().map(|x| x[0]).collect());
-            let y = calculate_bezier(dt, q.iter().map(|x| x[1]).collect());
-            let z = calculate_bezier(dt, q.iter().map(|x| x[2]).collect());
-            vertex_data.push(Vertex::new(x, y, z, self.materials[i]));
-            // vertex_data.push(Vertex::new(p[0][0], p[0][1], p[0][2], self.materials[i]));
-        }
-
-        factory.create_mesh(&vertex_data)
+        let index: usize = (dt*ANIMATION_FRAMES as f32) as usize;
+        &self.meshs[index]
     }
 }
 
@@ -290,20 +300,18 @@ impl World {
     }
 
     pub fn example() -> World {
+        let mut v = Vec::new();
+        for i in 0..10 {
+            for j in 0..10 {
+                v.push(StaticWorldObj::new([i as f32, j as f32], i as f32, 0, 3.0));
+            }
+        }
+
         World {
             animations: Vec::new(),
             in_game_time: 0.0,
             player: Player::new(0.0, PLAYER_HEIGHT, 4.0),
-            static_world_objects: vec![
-                StaticWorldObj::new([-1.0, 0.0], 0.0, 0, 3.0),
-                StaticWorldObj::new([-2.0, 0.0], 1.0, 1, 4.0),
-                StaticWorldObj::new([1.0, 0.0], 2.0, 0, 3.0),
-                StaticWorldObj::new([2.0, 0.0], 3.0, 0, 3.0),
-                StaticWorldObj::new([3.0, 0.0], 4.0, 0, 3.0),
-                StaticWorldObj::new([4.0, 0.0], 5.0, 0, 3.0),
-                StaticWorldObj::new([5.0, 0.0], 6.0, 0, 3.0),
-                StaticWorldObj::new([6.0, 0.0], 7.0, 0, 3.0)
-            ],
+            static_world_objects: v,
             dynamic_world_objects: Vec::new(),
             floor_objects: Vec::new(),
             last_time: PreciseTime::now()
@@ -316,7 +324,7 @@ impl World {
         }
     }
 
-    pub fn update(&mut self, factory: &mut Factory) -> Vec<(Mesh<Resources>, Slice<Resources>, T4Matrix<TCoordinate>)> { //TODO: remove dt and impl server comunication
+    pub fn update(&mut self) -> Vec<(&Mesh<Resources>, Slice<Resources>, T4Matrix<TCoordinate>)> { //TODO: remove dt and impl server comunication
         let now = PreciseTime::now();
         let dt = (self.last_time.to(now).num_nanoseconds().unwrap() as TTime)/1000000000.0;
         self.last_time = now;
@@ -324,8 +332,6 @@ impl World {
 
         // --------- update position ---------
         //let old_pos = self.player.position.clone();
-
-
 
         if self.player.moving[4] == 0.0 {
             self.player.y_speed = max(self.player.y_speed - 6.0 * dt, -8.0);
@@ -347,10 +353,10 @@ impl World {
         self.player.position[1] += self.player.y_speed * dt;
 
 
-        let mut result: Vec<(Mesh<Resources>, Slice<Resources>, T4Matrix<TCoordinate>)> = Vec::new();
+        let mut result: Vec<(&Mesh<Resources>, Slice<Resources>, T4Matrix<TCoordinate>)> = Vec::new();
         for p in self.static_world_objects.iter() {
             check_collision(&mut self.player, self.animations[p.animation_id].collision_radius, self.animations[p.animation_id].collision_y, &(p.position));
-            result.push((self.animations[p.animation_id].get_meshs(self.in_game_time, p.animation_time, factory), self.animations[p.animation_id].slice.clone(), p.model));
+            result.push((self.animations[p.animation_id].get_meshs(self.in_game_time, p.animation_time), self.animations[p.animation_id].slice.clone(), p.model));
         }
 
         result
