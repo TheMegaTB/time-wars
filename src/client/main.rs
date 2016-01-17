@@ -32,7 +32,15 @@ mod consts;
 use world::*;
 use gfx_lib::*;
 
+// ------------------- Network -------------------
+mod networking;
+use networking::API;
+use networking::Server;
+
 fn main() {
+    let mut server = Server::new().difficulty(5).local();
+    server.start_game();
+
     let mut events: PistonWindow<(), Sdl2Window> =
         WindowSettings::new("Timewars", [640, 480])
         .exit_on_esc(true)
